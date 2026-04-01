@@ -11,16 +11,16 @@ jobs:
       name: Checkout latest commit
 
     - name: Set up Docker Compose
-      run: docker compose up -d --build
+      run: docker compose -f docker-compose.cicd.yml up -d --build
 
     - name: Install Composer dependencies
-      run: docker exec async-pipeline-php-fpm composer install --no-interaction
+      run: docker compose -f docker-compose.cicd.yml run --rm php-fpm composer install --no-interaction
 
     - name: Run PHPStan
-      run: docker exec async-pipeline-php-fpm vendor/phpstan/phpstan/phpstan
+      run: docker compose -f docker-compose.cicd.yml run --rm php-fpm vendor/phpstan/phpstan/phpstan
 
     - name: Run PHP-CS-Fixer
-      run: docker exec async-pipeline-php-fpm vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --dry-run --allow-risky=yes --verbose --show-progress dots
+      run: docker compose -f docker-compose.cicd.yml run --rm php-fpm vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --dry-run --diff --allow-risky=yes --verbose --show-progress dots
 
     - name: Run PHPUnit
-      run: docker exec async-pipeline-php-fpm php bin/phpunit
+      run: docker compose -f docker-compose.cicd.yml run --rm php-fpm bin/phpunit
