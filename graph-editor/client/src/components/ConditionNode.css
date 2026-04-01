@@ -1,0 +1,62 @@
+.graph-node[data-type="condition"] {
+  border-radius: 6px;
+  overflow: visible;
+  background: #24292f;
+  border: 1px solid rgba(0, 0, 0, 0.75);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.graph-node[data-type="condition"] .graph-node-titlebar {
+  padding: 6px 14px;
+  color: #f2f2f2;
+  font-weight: 700;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.85);
+  background:
+    linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.35) 6%,
+      rgba(255, 255, 255, 0.12) 14%,
+      rgba(255, 255, 255, 0) 26%,
+      rgba(0, 0, 0, 0) 55%,
+      rgba(0, 0, 0, 0.18) 75%,
+      rgba(0, 0, 0, 0.45) 100%
+    ),
+    linear-gradient(to right,
+      #3a7848 0%,
+      #4a9258 50%,
+      #3d8040 100%
+    );
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 0, 0, 0.75);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.8);
+}
+
+.condition-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.condition-input {
+  padding: 4px 8px;
+  background: var(--bg-lighter);
+  border: 1.5px solid var(--border-strong);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 0.8rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.condition-input::placeholder {
+  color: var(--text-muted);
+}
+
+.condition-input:focus {
+  border-color: var(--accent-brand);
+}
+

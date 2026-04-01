@@ -1,0 +1,425 @@
+.graph-editor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.graph-editor-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+}
+
+.graph-editor.drag-over {
+  background: rgba(88, 101, 242, 0.05);
+}
+
+.graph-editor-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* --- Node block (blueprint style) --- */
+
+.graph-node {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  background: #000;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 0.95rem;
+  cursor: grab;
+  user-select: none;
+  overflow: visible;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transform: translate(-50%, -50%);
+}
+
+.graph-node:hover {
+  border-color: var(--accent-brand);
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.2);
+}
+
+.graph-node:active {
+  cursor: grabbing;
+}
+
+/* --- Titlebar --- */
+
+.graph-node-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 7px 7px 0 0;
+  overflow: hidden;
+}
+
+.graph-node-titlebar > .graph-node-delete {
+  margin-left: auto;
+}
+
+.graph-node-title {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* --- Body --- */
+
+.graph-node-body {
+  padding: 8px 10px;
+  min-height: 32px;
+  position: relative;
+  background: inherit;
+}
+
+.graph-node-body::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: inherit;
+}
+
+/* Action row */
+.graph-node-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-right: 2px;
+}
+
+/* IN / OUT pins row */
+.graph-node-pins-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.graph-node-pins-row + .graph-node-pins-row,
+.condition-fields + .graph-node-pins-row {
+  margin-top: 6px;
+}
+
+.graph-node-pin-left {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.graph-node-pin-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+
+/* Pin hit target */
+.graph-node-notch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  box-sizing: content-box;
+  margin: 0;
+  padding: 0 6px;
+  cursor: pointer;
+  user-select: none;
+  overflow: visible;
+}
+
+/* Right-side pin: pull to node edge */
+.graph-node-action .graph-node-notch,
+.graph-node-pin-right .graph-node-notch {
+  margin-right: -10px;
+}
+
+/* Left-side pin: pull to node edge */
+.graph-node-titlebar > .graph-node-notch,
+.graph-node-pin-left .graph-node-notch {
+  margin-left: -10px;
+}
+
+/* Pin shape (SVG path) */
+.graph-node-notch .pin-path {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
+  transition: stroke 0.15s ease, fill 0.15s ease;
+}
+
+/* Pin hover */
+.graph-node-notch:hover .pin-path {
+  stroke: var(--text-primary);
+}
+
+/* Connected state (future-proofing) */
+.graph-node-notch[data-connected="true"] .pin-path {
+  fill: var(--text-secondary);
+  stroke: var(--text-secondary);
+}
+
+.graph-node-notch[data-connected="true"]:hover .pin-path {
+  fill: var(--text-primary);
+  stroke: var(--text-primary);
+}
+
+/* Keyboard focus ring */
+.graph-node-notch:focus-visible {
+  outline: 2px solid rgba(140, 200, 255, .45);
+  outline-offset: 2px;
+}
+
+/* --- Delete button --- */
+
+.graph-node-delete {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.1s ease, color 0.1s ease;
+}
+
+.graph-node:hover .graph-node-delete {
+  opacity: 1;
+}
+
+.graph-node-delete:hover {
+  background: rgba(218, 55, 60, 0.15);
+  color: var(--color-danger);
+}
+
+/* --- Edge overlay --- */
+
+.graph-editor-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Committed edge */
+.graph-edge {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 2;
+  transition: stroke 0.15s ease;
+}
+
+.graph-edge-group:hover .graph-edge {
+  stroke: var(--text-primary);
+}
+
+/* Temporary dragging edge */
+.graph-edge--temp {
+  fill: none;
+  stroke: var(--accent-brand);
+  stroke-width: 2;
+  stroke-dasharray: 6 3;
+  opacity: 0.7;
+}
+
+/* Directional arrows */
+.graph-edge-arrow {
+  fill: var(--text-muted);
+  transition: fill 0.15s ease;
+}
+
+.graph-edge-group:hover .graph-edge-arrow {
+  fill: var(--text-primary);
+}
+
+.graph-edge-arrow--temp {
+  fill: var(--accent-brand);
+  opacity: 0.7;
+}
+
+/* --- Selection --- */
+
+.graph-node.graph-node--selected {
+  border: 1px solid var(--accent-brand);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.55),
+    0 0 0 1px var(--accent-brand),
+    0 4px 12px rgba(88, 101, 242, 0.3);
+}
+
+.graph-selection-box {
+  position: absolute;
+  background: rgba(88, 101, 242, 0.1);
+  border: 1px solid var(--accent-brand);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* --- Context menu --- */
+
+.graph-context-menu {
+  position: absolute;
+  z-index: 100;
+  background: var(--bg-darkest);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  min-width: 180px;
+}
+
+.graph-context-menu-item {
+  padding: 6px 10px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.graph-context-menu-item:hover {
+  background: var(--bg-lighter);
+  color: var(--text-primary);
+}
+
+/* --- Zoom meter --- */
+
+.zoom-meter {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 10;
+}
+
+.zoom-meter-track {
+  position: relative;
+  width: 6px;
+  height: 100px;
+  background: var(--bg-lighter);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.zoom-meter-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-radius: 3px;
+  background: var(--border-strong);
+  pointer-events: none;
+}
+
+.zoom-meter-thumb {
+  position: absolute;
+  left: 50%;
+  width: 14px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--text-muted);
+  transform: translate(-50%, 50%);
+  pointer-events: none;
+  transition: background 0.15s ease;
+}
+
+.zoom-meter-track:hover .zoom-meter-thumb {
+  background: var(--text-secondary);
+}
+
+.zoom-meter-reset {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 2px 0;
+  border-radius: 3px;
+  font-family: inherit;
+  width: 32px;
+  text-align: center;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.zoom-meter-reset:hover {
+  color: var(--text-primary);
+  background: var(--bg-lighter);
+}
+
+/* --- Save spinner --- */
+
+.graph-save-spinner {
+  position: absolute;
+  top: 12px;
+  right: 52px;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid var(--border-strong);
+  border-top-color: var(--accent-brand);
+  border-radius: 50%;
+  animation: graph-save-spin 0.7s linear infinite;
+  z-index: 10;
+}
+
+@keyframes graph-save-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Invalid YAML overlay --- */
+
+.graph-editor-invalid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-danger);
+  font-size: 0.95rem;
+  pointer-events: none;
+  user-select: none;
+  text-align: center;
+  padding: 16px 24px;
+  background: var(--bg-dark);
+  border: 1px solid var(--color-danger);
+  border-radius: 8px;
+}
+

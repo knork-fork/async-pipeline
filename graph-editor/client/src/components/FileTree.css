@@ -1,0 +1,112 @@
+.file-tree {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.file-tree-children {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 12px;
+}
+
+.file-tree-node {
+  user-select: none;
+}
+
+.file-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.file-tree-row--dir {
+  cursor: pointer;
+}
+
+.file-tree-row:hover {
+  background: var(--bg-lighter);
+  color: var(--text-primary);
+}
+
+.file-tree-chevron {
+  flex-shrink: 0;
+  width: 12px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.file-tree-chevron--spacer {
+  visibility: hidden;
+}
+
+.file-tree-icon {
+  flex-shrink: 0;
+  width: 16px;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.file-tree-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.file-tree-row--stage {
+  cursor: grab;
+}
+
+.file-tree-row--condition {
+  cursor: grab;
+}
+
+.file-tree-icon--stage {
+  color: #4a7290;
+  font-weight: 700;
+}
+
+.file-tree-icon--condition {
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+.file-tree-row--pipeline {
+  cursor: grab;
+}
+
+.file-tree-icon--pipeline {
+  color: #724a92;
+  font-weight: 700;
+}
+
+.file-tree-row--terminal {
+  cursor: grab;
+}
+
+.file-tree-icon--terminal {
+  color: #927a4a;
+  font-weight: 700;
+}
+
+.file-tree-row--comment {
+  cursor: grab;
+}
+
+.file-tree-icon--comment {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.file-tree-item-empty {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-style: italic;
+}

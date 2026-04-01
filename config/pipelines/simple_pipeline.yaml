@@ -1,0 +1,128 @@
+graph:
+  nodes:
+    - id: start
+      type: start
+      config:
+        keys:
+          - aaaaa
+          - sadsadas
+          - safasfsaf
+          - aew4242-_op78
+    - id: stage1
+      type: stage
+      stage: Stage1
+      config:
+        on_failure: route
+    - id: stage2
+      type: stage
+      stage: Stage2
+      config:
+        retry: 2
+        on_failure: continue
+    - id: stage3
+      type: stage
+      stage: Stage3
+      config:
+        on_failure: route
+    - id: equalscondition
+      type: condition
+      stage: EqualsCondition
+      config:
+        key: retries_exhausted
+        expected: 'true'
+    - id: stage4
+      type: stage
+      stage: Stage4
+      config: {}
+    - id: end
+      type: end
+      config: {}
+  edges:
+    - from:
+        node: start
+        port: out
+      to:
+        node: stage1
+        port: in
+    - from:
+        node: stage1
+        port: out
+      to:
+        node: stage2
+        port: in
+    - from:
+        node: stage2
+        port: out
+      to:
+        node: stage4
+        port: in
+    - from:
+        node: equalscondition
+        port: out
+      to:
+        node: stage4
+        port: in
+    - from:
+        node: equalscondition
+        port: 'false'
+      to:
+        node: stage3
+        port: in
+    - from:
+        node: stage4
+        port: out
+      to:
+        node: end
+        port: in
+    - from:
+        node: stage1
+        port: fail
+      to:
+        node: stage3
+        port: in
+    - from:
+        node: stage3
+        port: fail
+      to:
+        node: equalscondition
+        port: in
+    - from:
+        node: stage3
+        port: out
+      to:
+        node: stage4
+        port: in
+  comments:
+    - id: comment
+      text: Example of a pipeline
+      color: red
+ui:
+  viewport:
+    x: -17
+    'y': 199
+    zoom: 0.83
+  node_positions:
+    start:
+      x: 146
+      'y': 280
+    stage1:
+      x: 412
+      'y': 360
+    stage2:
+      x: 653
+      'y': 233
+    stage3:
+      x: 601
+      'y': 572
+    equalscondition:
+      x: 1127
+      'y': 565
+    stage4:
+      x: 1332
+      'y': 390
+    end:
+      x: 1207
+      'y': 187
+    comment:
+      x: 711
+      'y': 71

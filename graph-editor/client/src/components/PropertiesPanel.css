@@ -1,0 +1,204 @@
+.properties-panel {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.properties-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.properties-node-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.properties-node-id {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.properties-consumer-input::placeholder {
+  font-style: italic;
+}
+
+.properties-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.properties-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.properties-field-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.properties-input {
+  flex: 1;
+  padding: 6px 10px;
+  background: var(--bg-lighter);
+  border: 1.5px solid var(--border-strong);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+  min-width: 0;
+}
+
+.properties-input::placeholder {
+  color: var(--text-muted);
+}
+
+.properties-input:focus {
+  border-color: var(--accent-brand);
+}
+
+.properties-field-remove {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.properties-field-remove:hover {
+  background: rgba(218, 55, 60, 0.15);
+  color: var(--color-danger);
+}
+
+.properties-add-btn {
+  padding: 6px 12px;
+  background: none;
+  border: 1px dashed var(--text-muted);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-family: var(--font-family);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.properties-add-btn:hover {
+  background: rgba(88, 101, 242, 0.1);
+  color: var(--accent-brand);
+  border-color: var(--accent-brand);
+}
+
+.properties-color-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.properties-color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 2px solid var(--border-subtle);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.properties-color-swatch:hover {
+  border-color: var(--text-secondary);
+}
+
+.properties-color-swatch--active {
+  border-color: var(--accent-brand);
+  box-shadow: 0 0 0 1px var(--accent-brand);
+}
+
+.properties-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.properties-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.properties-retry-group {
+  display: flex;
+  gap: 4px;
+}
+
+.properties-retry-btn {
+  padding: 4px 10px;
+  background: var(--bg-lighter);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.properties-retry-btn:hover {
+  background: var(--bg-lightest);
+  color: var(--text-primary);
+}
+
+.properties-retry-btn--active {
+  background: var(--accent-brand);
+  border-color: var(--accent-brand);
+  color: #fff;
+}
+
+.properties-retry-btn--active:hover {
+  background: var(--accent-brand-hover);
+}
+
+.properties-retry-input {
+  width: 60px;
+  margin-top: 2px;
+}
+
+.properties-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.properties-radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.properties-radio input[type="radio"] {
+  accent-color: var(--accent-brand);
+  margin: 0;
+  cursor: pointer;
+}

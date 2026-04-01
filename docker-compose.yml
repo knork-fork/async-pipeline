@@ -22,3 +22,27 @@ services:
             - '.:/application'
             - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.5/fpm/conf.d/99-overrides.ini'
             - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.5/cli/conf.d/99-overrides.ini'
+
+    graph-editor-client:
+        container_name: async-pipeline-graph-editor-client
+        restart: unless-stopped
+        image: 'node:lts-alpine'
+        working_dir: /app/client
+        volumes:
+            - './graph-editor:/app'
+        ports:
+            - '20045:5174'
+        command: sh -c "npm install && npm run dev -- --host"
+
+    graph-editor-server:
+        container_name: async-pipeline-graph-editor-server
+        restart: unless-stopped
+        image: 'node:lts-alpine'
+        working_dir: /app
+        volumes:
+            - './graph-editor:/app'
+            - './config/pipelines:/pipelines'
+            - './src:/php-src'
+        ports:
+            - '20046:4001'
+        command: sh -c "npm install && node server.js"
