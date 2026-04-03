@@ -5,7 +5,9 @@
         "symfony/framework-bundle": "^8.0",
         "symfony/yaml": "^8.0",
         "symfony/dotenv": "^8.0",
-        "symfony/runtime": "^8.0"
+        "symfony/runtime": "^8.0",
+        "symfony/monolog-bundle": "^4.0",
+        "symfony/serializer-pack": "^1.4"
     },
     "autoload": {
         "psr-4": {

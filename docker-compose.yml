@@ -22,6 +22,7 @@ services:
             - '.:/application'
             - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.5/fpm/conf.d/99-overrides.ini'
             - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.5/cli/conf.d/99-overrides.ini'
+            - ./var/logs/php-fpm:/var/log
 
     graph-editor-client:
         container_name: async-pipeline-graph-editor-client
