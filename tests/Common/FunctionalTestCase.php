@@ -12,13 +12,21 @@ abstract class FunctionalTestCase extends TestCase
     private string $responseBody = '';
     private int $responseStatusCode = 0;
 
-    /** @param non-empty-string $method */
-    protected function request(string $method, string $uri): void
+    /**
+     * @param non-empty-string     $method
+     * @param array<string, mixed> $params
+     */
+    protected function request(string $method, string $uri, array $params = []): void
     {
         $baseUrl = $_ENV['BASE_LOCAL_URL'] ?? throw new RuntimeException('BASE_LOCAL_URL env variable is not set');
 
         if (!\is_string($baseUrl) || $baseUrl === '') {
             throw new RuntimeException('BASE_LOCAL_URL env variable must be a non-empty string');
+        }
+
+        if ($method === 'GET' && $params !== []) {
+            $uri .= (!str_contains($uri, '?') ? '?' : '&') . http_build_query($params);
+            $params = [];
         }
 
         $ch = curl_init();
@@ -30,7 +38,9 @@ abstract class FunctionalTestCase extends TestCase
             \CURLOPT_RETURNTRANSFER => true,
             \CURLOPT_URL => $baseUrl . $uri,
             \CURLOPT_CUSTOMREQUEST => $method,
+            \CURLOPT_POSTFIELDS => json_encode($params, \JSON_THROW_ON_ERROR),
             \CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
                 'Accept: application/json',
             ],
         ]);
