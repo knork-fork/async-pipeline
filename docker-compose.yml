@@ -33,7 +33,7 @@ services:
             - './graph-editor:/app'
         ports:
             - '20045:5174'
-        command: sh -c "npm install && npm run dev -- --host"
+        command: sh -c "npm install && npm run build && npm run dev -- --host"
 
     graph-editor-server:
         container_name: async-pipeline-graph-editor-server

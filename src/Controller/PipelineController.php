@@ -7,12 +7,22 @@ namespace App\Controller;
 use App\Dto\PipelineCreateRequest;
 use App\Dto\PipelineCreateResponse;
 use App\Dto\PipelineStatusResponse;
+use App\Service\PipelinePreviewService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 final class PipelineController extends AbstractController
 {
+    public function __construct(
+        SerializerInterface $serializer,
+        private readonly PipelinePreviewService $previewService,
+    ) {
+        parent::__construct($serializer);
+    }
+
     #[Route('/pipeline/create', methods: ['POST'])]
     public function create(#[MapRequestPayload] PipelineCreateRequest $request): JsonResponse
     {
@@ -30,5 +40,17 @@ final class PipelineController extends AbstractController
                 lastCompletedStage: null,
             ),
         );
+    }
+
+    #[Route('/pipeline/{id}/preview', methods: ['GET'])]
+    public function preview(string $id): Response
+    {
+        return new Response($this->previewService->getPreviewHtml($id), 200, ['Content-Type' => 'text/html; charset=UTF-8']);
+    }
+
+    #[Route('/pipeline/{id}/preview/data', methods: ['GET'])]
+    public function previewData(string $id): JsonResponse
+    {
+        return new JsonResponse($this->previewService->getPreviewData($id));
     }
 }

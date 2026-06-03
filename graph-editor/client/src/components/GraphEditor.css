@@ -284,6 +284,48 @@
     0 4px 12px rgba(88, 101, 242, 0.3);
 }
 
+.graph-node.graph-node--running {
+  border-color: var(--accent-brand);
+  animation: node-running-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes node-running-pulse {
+  0%, 100% {
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.3),
+      0 0 0 2px var(--accent-brand);
+  }
+  50% {
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.4),
+      0 0 0 3px var(--accent-brand),
+      0 0 14px rgba(88, 101, 242, 0.45);
+  }
+}
+
+/* --- Read-only mode --- */
+
+.graph-editor--readonly .graph-node {
+  cursor: default;
+}
+
+.graph-editor--readonly .graph-node:active {
+  cursor: default;
+}
+
+.graph-editor--readonly .graph-node-notch {
+  cursor: default;
+  pointer-events: none;
+}
+
+.graph-editor--readonly .graph-node-delete {
+  display: none;
+}
+
+.graph-editor--readonly .condition-input {
+  pointer-events: none;
+}
+
 .graph-selection-box {
   position: absolute;
   background: rgba(88, 101, 242, 0.1);

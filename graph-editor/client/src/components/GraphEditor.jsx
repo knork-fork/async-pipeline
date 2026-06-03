@@ -117,7 +117,7 @@ const MIN_ZOOM = 0.2
 const MAX_ZOOM = 1.2
 const ZOOM_SPEED = 0.001
 
-function GraphEditor({ nodes, setNodes, edges, setEdges, camera, setCamera, saving, yamlInvalid, disableDrop, selectedNodeIds, setSelectedNodeIds }) {
+function GraphEditor({ nodes, setNodes, edges, setEdges, camera, setCamera, saving, yamlInvalid, disableDrop, selectedNodeIds, setSelectedNodeIds, readOnly = false, runningNodeId = null }) {
   const [isDragOver, setIsDragOver] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [draggingEdge, setDraggingEdge] = useState(null)
@@ -161,23 +161,25 @@ function GraphEditor({ nodes, setNodes, edges, setEdges, camera, setCamera, savi
   }, [disableDrop])
 
   const handleDragEnter = useCallback((e) => {
+    if (readOnly) return
     e.preventDefault()
     dragCounter.current++
     setIsDragOver(true)
-  }, [])
+  }, [readOnly])
 
   const handleDragLeave = useCallback(() => {
+    if (readOnly) return
     dragCounter.current--
     if (dragCounter.current === 0) {
       setIsDragOver(false)
     }
-  }, [])
+  }, [readOnly])
 
   const handleDrop = useCallback((e) => {
     e.preventDefault()
     dragCounter.current = 0
     setIsDragOver(false)
-    if (disableDrop) return
+    if (disableDrop || readOnly) return
 
     const raw = e.dataTransfer.getData('application/json')
     if (!raw) return
@@ -219,6 +221,7 @@ function GraphEditor({ nodes, setNodes, edges, setEdges, camera, setCamera, savi
   }, [setNodes, disableDrop])
 
   const handleNodeMouseDown = useCallback((e, nodeId) => {
+    if (readOnly) return
     if (e.target.closest('.graph-node-delete')) return
 
     // Check if mousedown is on a pin — start edge dragging instead of node drag
@@ -405,6 +408,7 @@ function GraphEditor({ nodes, setNodes, edges, setEdges, camera, setCamera, savi
 
     // Left mouse button — box select
     if (e.button !== 0) return
+    if (readOnly) return
 
     const canvasRect = canvasRef.current.getBoundingClientRect()
     const startX = e.clientX - canvasRect.left
@@ -457,6 +461,7 @@ function GraphEditor({ nodes, setNodes, edges, setEdges, camera, setCamera, savi
   // Keyboard delete for selected nodes
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (readOnly) return
       if (editingId != null) return
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (selectedNodeIds.size === 0) return
@@ -571,7 +576,7 @@ function GraphEditor({ nodes, setNodes, edges, setEdges, camera, setCamera, savi
 
   return (
     <div
-      className={`graph-editor${isDragOver ? ' drag-over' : ''}`}
+      className={`graph-editor${isDragOver ? ' drag-over' : ''}${readOnly ? ' graph-editor--readonly' : ''}`}
       ref={canvasRef}
       style={bgStyle}
       onDragOver={handleDragOver}
@@ -593,7 +598,7 @@ function GraphEditor({ nodes, setNodes, edges, setEdges, camera, setCamera, savi
               key={ep.id}
               x1={ep.x1} y1={ep.y1}
               x2={ep.x2} y2={ep.y2}
-              onDelete={() => handleDeleteEdge(ep.id)}
+              onDelete={readOnly ? undefined : () => handleDeleteEdge(ep.id)}
             />
           ))}
           {draggingEdge && (
@@ -607,7 +612,7 @@ function GraphEditor({ nodes, setNodes, edges, setEdges, camera, setCamera, savi
         {nodes.map((node) => (
           <div
             key={node.id}
-            className={`graph-node${selectedNodeIds.has(node.id) ? ' graph-node--selected' : ''}`}
+            className={`graph-node${selectedNodeIds.has(node.id) ? ' graph-node--selected' : ''}${node.yamlId === runningNodeId ? ' graph-node--running' : ''}`}
             data-node-id={node.id}
             data-type={node.type}
             style={{ left: node.x, top: node.y, ...(node.type === 'comment' && node.color && COMMENT_COLORS[node.color] ? { background: COMMENT_COLORS[node.color] } : {}) }}
