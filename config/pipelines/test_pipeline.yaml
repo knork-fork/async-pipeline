@@ -1,0 +1,93 @@
+graph:
+  nodes:
+    - id: start
+      type: start
+      config: {}
+    - id: end
+      type: end
+      config: {}
+    - id: stage1
+      type: stage
+      stage: Stage1
+      config:
+        on_failure: route
+    - id: stage2
+      type: stage
+      stage: Stage2
+      config: {}
+    - id: stage3
+      type: stage
+      stage: Stage3
+      config: {}
+    - id: stage4
+      type: stage
+      stage: Stage4
+      config: {}
+  edges:
+    - from:
+        node: start
+        port: out
+      to:
+        node: stage1
+        port: in
+    - from:
+        node: stage1
+        port: out
+      to:
+        node: stage2
+        port: in
+    - from:
+        node: stage1
+        port: fail
+      to:
+        node: stage3
+        port: in
+    - from:
+        node: stage3
+        port: out
+      to:
+        node: stage4
+        port: in
+    - from:
+        node: stage2
+        port: out
+      to:
+        node: stage4
+        port: in
+    - from:
+        node: stage4
+        port: out
+      to:
+        node: end
+        port: in
+  comments:
+    - id: comment
+      text: Some comment
+      color: green
+ui:
+  viewport:
+    x: 82
+    'y': 82
+    zoom: 1.03
+  node_positions:
+    start:
+      x: 183
+      'y': 441
+    end:
+      x: 1166
+      'y': 511
+    comment:
+      x: 637
+      'y': 305
+    stage1:
+      x: 400
+      'y': 489
+    stage2:
+      x: 652
+      'y': 423
+    stage3:
+      x: 597
+      'y': 575
+    stage4:
+      x: 924
+      'y': 526
