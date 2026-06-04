@@ -1,0 +1,36 @@
+graph:
+  nodes:
+    - id: start
+      type: start
+      config: {}
+    - id: stage1
+      type: stage
+      stage: Stage1
+      config:
+        on_failure: route
+    - id: end1
+      type: end
+      config: {}
+    - id: end2
+      type: end
+      config: {}
+  edges:
+    - from:
+        node: start
+        port: out
+      to:
+        node: stage1
+        port: in
+    - from:
+        node: stage1
+        port: out
+      to:
+        node: end1
+        port: in
+    - from:
+        node: stage1
+        port: fail
+      to:
+        node: end2
+        port: in
+  comments: []

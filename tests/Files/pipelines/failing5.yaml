@@ -1,0 +1,17 @@
+graph:
+  nodes:
+    - id: start
+      type: start
+      config: {}
+    - id: stage1
+      type: stage
+      stage: Stage1
+      config: {}
+  edges:
+    - from:
+        node: start
+        port: out
+      to:
+        node: stage1
+        port: in
+  comments: []

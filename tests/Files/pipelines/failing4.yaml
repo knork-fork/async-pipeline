@@ -1,0 +1,70 @@
+graph:
+  nodes:
+    - id: start
+      type: start
+      config:
+        keys:
+          - key_1
+          - key_2
+          - key_3
+    - id: end
+      type: end
+      config:
+        keys:
+          - output_key
+          - output_secondary_key
+    - id: stage1
+      type: stage
+      stage: Stage1
+      config:
+        on_failure: route
+    - id: stage2
+      type: stage
+      stage: Stage2
+      config: {}
+    - id: stage3
+      type: stage
+      stage: Stage3
+      config: {}
+    - id: stage4
+      type: stage
+      stage: Stage4
+      config: {}
+  edges:
+    - from:
+        node: start
+        port: out
+      to:
+        node: stage1
+        port: in
+    - from:
+        node: stage1
+        port: out
+      to:
+        node: stage2
+        port: in
+    - from:
+        node: stage1
+        port: fail
+      to:
+        node: stage3
+        port: in
+    - from:
+        node: stage3
+        port: out
+      to:
+        node: stage4
+        port: in
+    - from:
+        node: stage2
+        port: out
+      to:
+        node: stage4
+        port: in
+    - from:
+        node: stage4
+        port: out
+      to:
+        node: end
+        port: in
+  comments: []
