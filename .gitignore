@@ -3,6 +3,7 @@
 /var/
 .php-cs-fixer.cache
 .phpunit.result.cache
+config/reference.php
 
 # IDE
 .idea/
