@@ -14,11 +14,22 @@ final class PipelineControllerTest extends FunctionalTestCase
     public function testCreatePipeline(): void
     {
         $this->request('POST', '/pipeline/create', [
-            'name' => 'test-pipeline',
+            'type' => 'test_pipeline',
             'data' => ['key' => 'value'],
         ]);
 
-        $this->assertJsonResponse(['id' => 1]);
+        $response = $this->decodeJsonResponse();
+        self::assertArrayHasKey('id', $response);
+        self::assertIsInt($response['id']);
+    }
+
+    public function testCreatePipelineWithInvalidType(): void
+    {
+        $this->request('POST', '/pipeline/create', [
+            'type' => 'nonexistent_pipeline',
+        ]);
+
+        $this->assertJsonResponse(['error' => 'Invalid pipeline type'], 400);
     }
 
     public function testGetPipelineStatus(): void

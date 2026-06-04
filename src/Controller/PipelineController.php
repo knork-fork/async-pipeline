@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Dto\PipelineCreateRequest;
-use App\Dto\PipelineCreateResponse;
 use App\Dto\PipelineStatusResponse;
+use App\Exception\InvalidPipelineTypeException;
+use App\Service\PipelineCreateService;
 use App\Service\PipelinePreviewService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,7 @@ final class PipelineController extends AbstractController
 {
     public function __construct(
         SerializerInterface $serializer,
+        private readonly PipelineCreateService $pipelineCreateService,
         private readonly PipelinePreviewService $previewService,
     ) {
         parent::__construct($serializer);
@@ -26,9 +28,11 @@ final class PipelineController extends AbstractController
     #[Route('/pipeline/create', methods: ['POST'])]
     public function create(#[MapRequestPayload] PipelineCreateRequest $request): JsonResponse
     {
-        return $this->toJsonResponse(
-            new PipelineCreateResponse(id: 1),
-        );
+        try {
+            return $this->toJsonResponse($this->pipelineCreateService->createPipeline($request));
+        } catch (InvalidPipelineTypeException) {
+            return new JsonResponse(['error' => 'Invalid pipeline type'], 400);
+        }
     }
 
     #[Route('/pipeline/{id}/status', methods: ['GET'])]

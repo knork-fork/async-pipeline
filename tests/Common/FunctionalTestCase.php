@@ -64,4 +64,16 @@ abstract class FunctionalTestCase extends TestCase
         $response = json_decode($this->responseBody, true);
         self::assertSame($expected, $response);
     }
+
+    /** @return array<string, mixed> */
+    protected function decodeJsonResponse(int $expectedResponseCode = 200): array
+    {
+        self::assertSame($expectedResponseCode, $this->responseStatusCode);
+        self::assertJson($this->responseBody);
+
+        $decoded = json_decode($this->responseBody, true);
+        self::assertIsArray($decoded);
+
+        return $decoded;
+    }
 }
