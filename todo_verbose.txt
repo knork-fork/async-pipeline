@@ -1,0 +1,153 @@
+pozivanje endpointa pokrene pipeline, postoji endpoint za provjeru je li pipeline završio koji se onda polla, ali kasnije nek ima i webhook za to (da može pozvat baš neki endpoint natrag)
+
+postoji interna tablica u containeru u kojoj se prati state svakog pipelinea (za svaki korak i za cijeli pipeline)
+
+queue consumer bi trebao odradit svaki korak tako da je sve async, treba bit i neka metoda prijenosa podataka koji su bitni za pipeline
+
+na nekom mjestu se drži response koji je spreman za vratit se i označava da je pipeline gotov
+
+nekako osigurat da se pipeline koji je u toku ne skrši ako se editira yaml kojim je pipeline definiran
+
+nakon što je pipeline gotov počistit dio za prijenos podataka između koraka, ali zadržat nekakav log za svaki korak
+:joy:
+Click to react
+:thumbsup:
+Click to react
+:thumbsdown:
+Click to react
+Add Reaction
+Edit
+Forward
+More
+[11:53]Tuesday 24 March 2026 at 11:53
+za moj RAG, treba biti samo jedan LLM consumer, ok je da svi ostali pipelinei budu bottlenecked dok čekaju na LLM step
+
+za ostale stepove može bit više consumera
+:joy:
+Click to react
+:thumbsup:
+Click to react
+:thumbsdown:
+Click to react
+Add Reaction
+Edit
+Forward
+More
+[11:54]Tuesday 24 March 2026 at 11:54
+UI iz n8n za kompliciraniji pipeline
+
+Delete
+:joy:
+Click to react
+:thumbsup:
+Click to react
+:thumbsdown:
+Click to react
+Add Reaction
+Edit
+Forward
+More
+26 March 2026
+
+Moja malenkost — 26/03/2026, 18:08Thursday 26 March 2026 at 18:08
+live preview za određeni pipeline id, tako da se vidi točno koji step pipelinea je vrti
+27 March 2026
+
+Moja malenkost — 27/03/2026, 15:52Friday 27 March 2026 at 15:52
+cijeli consumer-pipeline se treba instalirat sa wget install.sh koji onda inita containere u docker-compose i mounta odabrani dir za source fileove, u mountanom diru budu base klasa i custom user klase, taj dio se commita, a consumer-pipeline repo ne
+[15:53]Friday 27 March 2026 at 15:53
+dodat test-only skriptu koja će pokrenut actual test pipeline, s klasama koje se neće instalirat kroz install.sh
+30 March 2026
+
+Moja malenkost — 30/03/2026, 11:31Monday 30 March 2026 at 11:31
+vanjski servisi trebaju zvat start pipeline endpoint, svaki endpoint kad se starta dobije svoj id
+
+treba bit /pipeline/live/<id> pipeline za node client koji će pratit kako ide izvršavanje pipelinea (dostupno samo na localhost, ne prod) (edited)Monday 30 March 2026 at 11:31
+
+Moja malenkost — 30/03/2026, 22:06Monday 30 March 2026 at 22:06
+start i end node imaju plusić za expand koji expanda u request/response contract, popis keyeva koji se mogu koristit
+
+abstractstage klasa implementira dohvat keyeva iz contracta
+
+svaka stage klasa mora implementirat metodu register koja vraća new StageContract s popisom input i output keyeva za svaki stage, kad se starta pipeline se prvo pozovu sve register metode i izbuilda common parameter bag objekt, postoji auth mehanizam koji ne dopušta čitanje/pisanje iz keyeva koji nisu u register, auth layer može biti u abstractstage
+
+WorkflowState objekt s arrayevima kao private property:
+key absent = not produced yet,
+key present = produced,
+optional reads can check has(),
+ (edited)Monday 30 March 2026 at 22:08
+
+Moja malenkost — 30/03/2026, 22:13Monday 30 March 2026 at 22:13
+abstractstage klasa mora implementirat i spremanje pipeline statea (koji job je pending itd.), ili možda da to radi neki StageManager (bolje) (edited)Monday 30 March 2026 at 22:14
+[22:14]Monday 30 March 2026 at 22:14
+validacija prije pipeline runa (early exception):
+postoji start (contract optional),
+postoji end (contract optional),
+read keyevi u stageu su ili iz start contracta ili je upstream stage pisao,
+keyevi u end contractu su ili iz start contracta ili je upstream stage pisao,
+svi pipeline pathevi vode u end
+"Every node reachable from start must have a path to end",
+,
+nema zombie pipeline patheva koji ne kreću iz start ili upstream nodea
+"All nodes in the pipeline must be reachable from start",
+,
+node id-evi moraju biti unique,
+samo jedan node smije radit write za određeni key,
+ne smije bit write keyeva koje nitko ne čita (uključuje i keyeve iz start contracta, nepotrebni su ako ih nitko neće čitat),
+conditional node ne može readat key u koji nitko ne piše,
+samo jedan start node, samo jedan end node,
+
+
+note: možda ako fali end imat implicitni end, a za start samo ignorirat? to bi bilo jednostavnije.
+
+dodat validate gumb u graph editor, možda i save (iako već postoji automatski svake sekunde) (edited)Tuesday 31 March 2026 at 02:30
+[22:17]Monday 30 March 2026 at 22:17
+
+
+Moja malenkost — 30/03/2026, 22:22Monday 30 March 2026 at 22:22
+neki allow disallow fail za stageve? ako faila stage automatski retry, ili cijeli pipeline faila? mandatory i optional stagevi?
+
+Moja malenkost — 30/03/2026, 22:29Monday 30 March 2026 at 22:29
+dodat na stage node na neki način dropdown za fail mehanizam s opcijama:
+none (continue bez faila pipelinea),
+fail pipeline,
+retry + settings za retry (koliko puta)
+fail pipeline setting ako ispuca sve retries?,
+,
+pin do drugog nodea,
+
+
+treba node definirat što je fail mode, nije isto ako je network issue ili ako biznis logika kaže da je fail (edited)Monday 30 March 2026 at 22:32
+:joy:
+Click to react
+:thumbsup:
+Click to react
+:thumbsdown:
+Click to react
+Add Reaction
+Edit
+Forward
+More
+
+Moja malenkost — 30/03/2026, 22:44Monday 30 March 2026 at 22:44
+komentar node
+
+uz end node imat i throw exception/fail pipeline node
+
+special step-debug mode gdje se u /pipeline/live-debug/<id> nodeovi ne pokrenu automatski nego stoje i nude xdebugable request s kojim se onda točno može vidjet što je sve u parameter bagu
+ovo znači da negdje mora bit zapisan parameter bag state u bazi ili slično, ne samo u memoriji,
+ (edited)Monday 30 March 2026 at 22:46
+:joy:
+Click to react
+:thumbsup:
+Click to react
+:thumbsdown:
+Click to react
+Add Reaction
+Edit
+Forward
+More
+31 March 2026
+
+Moja malenkost — 31/03/2026, 02:19Tuesday 31 March 2026 at 02:19
+caching za pipeline yaml, da se ne mora svaki put ponovno initat ako nije promijenjen timestamp? možda i symfony ima neš ugrađeno za to

@@ -1,0 +1,19 @@
+složit par stage klasa itd.
+
+složit testni pipeline koji ne radi ništa osim wait po sekundu
+
+složit start pipeline endpoint
+
+složit pipeline preview u graph editoru
+
+-
+
+složit functional test koji će curlat pipeline create endpoint za test endpoint i onda svakih 100ms pingat pipeline status endpoint
+uz provjeru gledat i jel prošlo X vremena bez da status:completed, ako je onda timeout i fail testa
+
+
+prebacit sve u vezi async-pipeline-php-fpm u containers/api
+imat nešto ovako:
+- front facing container (by front I mean reachable within docker network) with endpoint for starting a pipeline that validates whether pipeline matches previously established rules and then inits a parameter bag and saves it to db, adds a pipeline to the db under status pending, pushes new event to job orchestrator queue route and then ends the request
+- job orchestrator is a consumer for pipeline orchestration route only, it uses symfony messenger component and continuously listens for pipeline update event and when it hears one it checks the pipeline and checks which node should be next and updates pipeline state in db (pending-doing) and also adds stage to db with status pending and dispatches a pending stage event to another queue route and ends the request, goes back to listening mode
+- different consumers (either generic or specialised for certain routes) listen for pending stage event and take on stage, update its state from pending to doing and inits the actual class and fetches parameter bag from and executes the object, if finished updates stage state and refreshes parameter bag and then pushes pipeline update to the queue and ends the request
