@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Dto\PipelineCreateRequest;
 use App\Dto\PipelineStatusResponse;
 use App\Exception\InvalidPipelineTypeException;
+use App\Repository\PipelineRepository;
 use App\Service\PipelineCreateService;
 use App\Service\PipelinePreviewService;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,6 +22,7 @@ final class PipelineController extends AbstractController
         SerializerInterface $serializer,
         private readonly PipelineCreateService $pipelineCreateService,
         private readonly PipelinePreviewService $previewService,
+        private readonly PipelineRepository $pipelineRepository,
     ) {
         parent::__construct($serializer);
     }
@@ -38,9 +40,15 @@ final class PipelineController extends AbstractController
     #[Route('/pipeline/{id}/status', methods: ['GET'])]
     public function status(string $id): JsonResponse
     {
+        $pipeline = $this->pipelineRepository->find((int) $id);
+
+        if ($pipeline === null) {
+            return new JsonResponse(['error' => 'Pipeline not found'], 404);
+        }
+
         return $this->toJsonResponse(
             new PipelineStatusResponse(
-                status: 'pending',
+                status: $pipeline->getStatus(),
                 lastCompletedStage: null,
             ),
         );
@@ -49,12 +57,24 @@ final class PipelineController extends AbstractController
     #[Route('/pipeline/{id}/preview', methods: ['GET'])]
     public function preview(string $id): Response
     {
+        $pipeline = $this->pipelineRepository->find((int) $id);
+
+        if ($pipeline === null) {
+            return new JsonResponse(['error' => 'Pipeline not found'], 404);
+        }
+
         return new Response($this->previewService->getPreviewHtml($id), 200, ['Content-Type' => 'text/html; charset=UTF-8']);
     }
 
     #[Route('/pipeline/{id}/preview/data', methods: ['GET'])]
     public function previewData(string $id): JsonResponse
     {
+        $pipeline = $this->pipelineRepository->find((int) $id);
+
+        if ($pipeline === null) {
+            return new JsonResponse(['error' => 'Pipeline not found'], 404);
+        }
+
         return new JsonResponse($this->previewService->getPreviewData($id));
     }
 }

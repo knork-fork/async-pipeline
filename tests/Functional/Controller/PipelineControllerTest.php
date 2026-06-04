@@ -41,4 +41,34 @@ final class PipelineControllerTest extends FunctionalTestCase
             'lastCompletedStage' => null,
         ]);
     }
+
+    public function testGetPipelineStatusNotFound(): void
+    {
+        $this->request('GET', '/pipeline/999999/status');
+
+        $this->assertJsonResponse(['error' => 'Pipeline not found'], 404);
+    }
+
+    public function testPreviewNotFound(): void
+    {
+        $this->request('GET', '/pipeline/999999/preview');
+
+        $this->assertJsonResponse(['error' => 'Pipeline not found'], 404);
+    }
+
+    public function testPreviewData(): void
+    {
+        $this->request('GET', '/pipeline/1/preview/data');
+
+        $response = $this->decodeJsonResponse();
+        self::assertArrayHasKey('graph', $response);
+        self::assertSame('start', $response['currentRunningNodeId']);
+    }
+
+    public function testPreviewDataNotFound(): void
+    {
+        $this->request('GET', '/pipeline/999999/preview/data');
+
+        $this->assertJsonResponse(['error' => 'Pipeline not found'], 404);
+    }
 }

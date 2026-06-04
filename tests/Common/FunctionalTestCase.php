@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace App\Tests\Common;
 
-use PHPUnit\Framework\TestCase;
-use RuntimeException;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
 
-abstract class FunctionalTestCase extends TestCase
+abstract class FunctionalTestCase extends WebTestCase
 {
-    private string $responseBody = '';
-    private int $responseStatusCode = 0;
+    private Response $response; // @phpstan-ignore property.uninitialized
+    private KernelBrowser $client; // @phpstan-ignore property.uninitialized
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->client = static::createClient();
+    }
 
     /**
      * @param non-empty-string     $method
@@ -18,60 +25,42 @@ abstract class FunctionalTestCase extends TestCase
      */
     protected function request(string $method, string $uri, array $params = []): void
     {
-        $baseUrl = $_ENV['BASE_LOCAL_URL'] ?? throw new RuntimeException('BASE_LOCAL_URL env variable is not set');
+        $client = $this->client;
 
-        if (!\is_string($baseUrl) || $baseUrl === '') {
-            throw new RuntimeException('BASE_LOCAL_URL env variable must be a non-empty string');
-        }
+        $content = null;
+        $queryString = '';
 
         if ($method === 'GET' && $params !== []) {
-            $uri .= (!str_contains($uri, '?') ? '?' : '&') . http_build_query($params);
-            $params = [];
+            $queryString = '?' . http_build_query($params);
+        } elseif ($params !== []) {
+            $content = json_encode($params, \JSON_THROW_ON_ERROR);
         }
 
-        $ch = curl_init();
-        if ($ch === false) {
-            throw new RuntimeException('Failed to initialize cURL');
-        }
+        $client->request($method, $uri . $queryString, [], [], [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_ACCEPT' => 'application/json',
+        ], $content);
 
-        curl_setopt_array($ch, [
-            \CURLOPT_RETURNTRANSFER => true,
-            \CURLOPT_URL => $baseUrl . $uri,
-            \CURLOPT_CUSTOMREQUEST => $method,
-            \CURLOPT_POSTFIELDS => json_encode($params, \JSON_THROW_ON_ERROR),
-            \CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Accept: application/json',
-            ],
-        ]);
-
-        $result = curl_exec($ch);
-
-        if ($result === false) {
-            throw new RuntimeException(curl_error($ch));
-        }
-
-        $this->responseStatusCode = curl_getinfo($ch, \CURLINFO_HTTP_CODE);
-        $this->responseBody = (string) $result;
+        $this->response = $client->getResponse();
     }
 
     /** @param array<string, mixed> $expected */
     protected function assertJsonResponse(array $expected, int $expectedResponseCode = 200): void
     {
-        self::assertSame($expectedResponseCode, $this->responseStatusCode);
-        self::assertJson($this->responseBody);
+        self::assertSame($expectedResponseCode, $this->response->getStatusCode());
+        self::assertJson((string) $this->response->getContent());
 
-        $response = json_decode($this->responseBody, true);
+        $response = json_decode((string) $this->response->getContent(), true);
         self::assertSame($expected, $response);
     }
 
     /** @return array<string, mixed> */
     protected function decodeJsonResponse(int $expectedResponseCode = 200): array
     {
-        self::assertSame($expectedResponseCode, $this->responseStatusCode);
-        self::assertJson($this->responseBody);
+        self::assertSame($expectedResponseCode, $this->response->getStatusCode());
+        self::assertJson((string) $this->response->getContent());
 
-        $decoded = json_decode($this->responseBody, true);
+        $decoded = json_decode((string) $this->response->getContent(), true);
         self::assertIsArray($decoded);
 
         return $decoded;

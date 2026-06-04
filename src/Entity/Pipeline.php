@@ -8,7 +8,7 @@ use App\Enum\PipelineStatus;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: \App\Repository\PipelineRepository::class)]
 #[ORM\Table(name: 'pipelines')]
 class Pipeline
 {
