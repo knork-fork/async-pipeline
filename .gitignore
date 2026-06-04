@@ -22,3 +22,6 @@ Thumbs.db
 
 # Environment
 .env.local
+
+# Db init files
+scripts/database/db_initialized

@@ -2,6 +2,38 @@
 #                          Generated on phpdocker.io                          #
 ###############################################################################
 services:
+    postgres:
+        container_name: async-pipeline-postgres
+        restart: unless-stopped
+        image: 'postgres:15-alpine'
+        working_dir: /application
+        volumes:
+            - '.:/application'
+            - async-pipeline-pgdata:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_USER=async_pipeline_user
+            - POSTGRES_PASSWORD=async_pipeline_pass
+            - POSTGRES_DB=async_pipeline_db
+
+    pgbouncer:
+        container_name: async-pipeline-db
+        depends_on:
+            - postgres
+        restart: unless-stopped
+        image: edoburu/pgbouncer:latest
+        environment:
+            DB_USER: async_pipeline_user
+            DB_PASSWORD: async_pipeline_pass
+            DB_HOST: async-pipeline-postgres
+            DATABASES: |
+                async_pipeline_db = host=async-pipeline-postgres dbname=async_pipeline_db
+            POOL_MODE: transaction
+            MAX_CLIENT_CONN: 100
+            DEFAULT_POOL_SIZE: 20
+            LISTEN_PORT: 5435
+        volumes:
+            - ./containers/db/pgbouncer_userlist.txt:/etc/pgbouncer/userlist.txt:ro
+
     webserver:
         container_name: async-pipeline-webserver
         restart: unless-stopped
@@ -47,3 +79,6 @@ services:
         ports:
             - '20046:4001'
         command: sh -c "npm install && node server.js"
+
+volumes:
+    async-pipeline-pgdata:
