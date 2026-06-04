@@ -6,6 +6,7 @@ namespace App\Stage;
 
 final class StageContract
 {
+    /** @var list<string> */
     private array $keys = [];
 
     public function addKey(string $key): self
@@ -15,6 +16,7 @@ final class StageContract
         return $this;
     }
 
+    /** @return list<string> */
     public function getKeys(): array
     {
         return $this->keys;
