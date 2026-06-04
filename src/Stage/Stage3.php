@@ -6,6 +6,11 @@ namespace App\Stage;
 
 final class Stage3 extends AbstractStage
 {
+    public function register(): StageContract
+    {
+        return new StageContract();
+    }
+
     public function run(): void
     {
     }
