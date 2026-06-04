@@ -2,10 +2,16 @@ graph:
   nodes:
     - id: start
       type: start
-      config: {}
+      config:
+        keys:
+          - key_1
+          - key_2
+          - key_3
     - id: end
       type: end
-      config: {}
+      config:
+        keys:
+          - output_key
     - id: stage1
       type: stage
       stage: Stage1
@@ -66,8 +72,8 @@ graph:
       color: green
 ui:
   viewport:
-    x: 82
-    'y': 82
+    x: -8
+    'y': 68
     zoom: 1.03
   node_positions:
     start:
@@ -76,9 +82,6 @@ ui:
     end:
       x: 1166
       'y': 511
-    comment:
-      x: 637
-      'y': 305
     stage1:
       x: 400
       'y': 489
@@ -91,3 +94,6 @@ ui:
     stage4:
       x: 924
       'y': 526
+    comment:
+      x: 637
+      'y': 305
