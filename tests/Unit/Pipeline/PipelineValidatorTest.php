@@ -172,4 +172,57 @@ final class PipelineValidatorTest extends UnitTestCase
         self::assertFalse($result->isValid());
         self::assertNotEmpty($result->getErrors());
     }
+
+    /**
+     * Pipeline contract expects key_1, key_2, key_3.
+     * Providing exactly those keys must pass.
+     */
+    public function testPassesWhenInputDataMatchesContract(): void
+    {
+        /** @var array<string, mixed> $pipeline */
+        $pipeline = Yaml::parseFile(self::FILES_DIR . '/pipelines/base.yaml');
+        $result = $this->validator->validate(
+            $pipeline,
+            'App\Tests\Files\Stages\Passing',
+            ['key_1' => 'a', 'key_2' => 'b', 'key_3' => 'c'],
+        );
+
+        self::assertTrue($result->isValid());
+    }
+
+    /**
+     * Pipeline contract expects key_1, key_2, key_3.
+     * Providing only a subset must fail.
+     */
+    public function testFailsWhenInputDataIsMissingContractKey(): void
+    {
+        /** @var array<string, mixed> $pipeline */
+        $pipeline = Yaml::parseFile(self::FILES_DIR . '/pipelines/base.yaml');
+        $result = $this->validator->validate(
+            $pipeline,
+            'App\Tests\Files\Stages\Passing',
+            ['key_1' => 'a', 'key_2' => 'b'],
+        );
+
+        self::assertFalse($result->isValid());
+        self::assertNotEmpty($result->getErrors());
+    }
+
+    /**
+     * Pipeline contract expects key_1, key_2, key_3.
+     * Providing an extra key not in the contract must fail.
+     */
+    public function testFailsWhenInputDataContainsExtraKey(): void
+    {
+        /** @var array<string, mixed> $pipeline */
+        $pipeline = Yaml::parseFile(self::FILES_DIR . '/pipelines/base.yaml');
+        $result = $this->validator->validate(
+            $pipeline,
+            'App\Tests\Files\Stages\Passing',
+            ['key_1' => 'a', 'key_2' => 'b', 'key_3' => 'c', 'extra' => 'd'],
+        );
+
+        self::assertFalse($result->isValid());
+        self::assertNotEmpty($result->getErrors());
+    }
 }

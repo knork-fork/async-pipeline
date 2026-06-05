@@ -15,7 +15,7 @@ final class PipelineControllerTest extends FunctionalTestCase
     {
         $this->request('POST', '/pipeline/create', [
             'type' => 'test_pipeline',
-            'data' => ['key' => 'value'],
+            'data' => ['key_1' => 'value1', 'key_2' => 'value2', 'key_3' => 'value3'],
         ]);
 
         $response = $this->decodeJsonResponse();
@@ -30,6 +30,16 @@ final class PipelineControllerTest extends FunctionalTestCase
         ]);
 
         $this->assertJsonResponse(['error' => 'Invalid pipeline type'], 400);
+    }
+
+    public function testCreatePipelineWithInvalidData(): void
+    {
+        $this->request('POST', '/pipeline/create', [
+            'type' => 'test_pipeline',
+            'data' => ['wrong_key' => 'value'],
+        ]);
+
+        $this->assertJsonResponse(['error' => 'Invalid pipeline data'], 400);
     }
 
     public function testGetPipelineStatus(): void

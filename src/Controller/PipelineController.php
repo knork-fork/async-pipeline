@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Dto\PipelineCreateRequest;
 use App\Dto\PipelineStatusResponse;
+use App\Exception\InvalidPipelineDataException;
 use App\Exception\InvalidPipelineTypeException;
 use App\Repository\PipelineRepository;
 use App\Service\PipelineCreateService;
@@ -34,6 +35,8 @@ final class PipelineController extends AbstractController
             return $this->toJsonResponse($this->pipelineCreateService->createPipeline($request));
         } catch (InvalidPipelineTypeException) {
             return new JsonResponse(['error' => 'Invalid pipeline type'], 400);
+        } catch (InvalidPipelineDataException) {
+            return new JsonResponse(['error' => 'Invalid pipeline data'], 400);
         }
     }
 

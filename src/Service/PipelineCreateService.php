@@ -7,15 +7,19 @@ namespace App\Service;
 use App\Dto\PipelineCreateRequest;
 use App\Dto\PipelineCreateResponse;
 use App\Entity\Pipeline;
+use App\Exception\InvalidPipelineDataException;
 use App\Exception\InvalidPipelineTypeException;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Yaml\Yaml;
 
 final class PipelineCreateService
 {
-    /** @param list<string> $availablePipelineFiles */
+    /** @param array<string, string> $pipelineFiles map of type name to full file path */
     public function __construct(
-        private readonly array $availablePipelineFiles,
+        private readonly array $pipelineFiles,
         private readonly EntityManagerInterface $em,
+        private readonly PipelineValidatorInterface $validator,
+        private readonly string $stageNamespace,
     ) {
     }
 
@@ -24,9 +28,13 @@ final class PipelineCreateService
      */
     public static function create(string $projectDir, EntityManagerInterface $em): self
     {
-        $files = array_map('basename', glob($projectDir . '/config/pipelines/*.yaml') ?: []);
+        $files = glob($projectDir . '/config/pipelines/*.yaml') ?: [];
+        $pipelineFiles = [];
+        foreach ($files as $file) {
+            $pipelineFiles[pathinfo($file, \PATHINFO_FILENAME)] = $file;
+        }
 
-        return new self($files, $em);
+        return new self($pipelineFiles, $em, new PipelineValidator(), 'App\Stage');
     }
 
     public function createPipeline(PipelineCreateRequest $request): PipelineCreateResponse
@@ -36,10 +44,19 @@ final class PipelineCreateService
             $type = substr($type, 0, -5);
         }
 
-        $availableTypes = array_map(static fn (string $f) => pathinfo($f, \PATHINFO_FILENAME), $this->availablePipelineFiles);
-
-        if (!\in_array($type, $availableTypes, true)) {
+        if (!isset($this->pipelineFiles[$type])) {
             throw new InvalidPipelineTypeException(\sprintf('Unknown pipeline type "%s".', $type));
+        }
+
+        /** @var array<string, mixed> $pipelineDefinition */
+        $pipelineDefinition = Yaml::parseFile($this->pipelineFiles[$type]);
+
+        // Pipeline job can't be created if
+        // - pipeline definition is invalid
+        // - request data doesn't match pipeline contract
+        $result = $this->validator->validate($pipelineDefinition, $this->stageNamespace, $request->data);
+        if (!$result->isValid()) {
+            throw new InvalidPipelineDataException(implode(' ', $result->getErrors()));
         }
 
         $pipeline = new Pipeline($type);

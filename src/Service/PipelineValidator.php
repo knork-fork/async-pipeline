@@ -9,10 +9,13 @@ use App\Stage\AbstractStage;
 use App\Stage\StageContract;
 use RuntimeException;
 
-final class PipelineValidator
+final class PipelineValidator implements PipelineValidatorInterface
 {
-    /** @param array<string, mixed> $pipeline */
-    public function validate(array $pipeline, string $stageNamespace): ValidationResult
+    /**
+     * @param array<string, mixed>      $pipeline
+     * @param array<string, mixed>|null $inputData when provided, keys are checked against the start node contract
+     */
+    public function validate(array $pipeline, string $stageNamespace, ?array $inputData = null): ValidationResult
     {
         /** @var array<string, mixed> $graph */
         $graph = $pipeline['graph'] ?? [];
@@ -143,6 +146,21 @@ final class PipelineValidator
             $result = $this->validatePath($path, $startKeys, $endKeys, $contracts);
             if (!$result->isValid()) {
                 return $result;
+            }
+        }
+
+        if ($inputData !== null) {
+            $providedKeys = array_keys($inputData);
+            sort($providedKeys);
+            $expectedKeys = $startKeys;
+            sort($expectedKeys);
+
+            if ($providedKeys !== $expectedKeys) {
+                return ValidationResult::fail(\sprintf(
+                    'Input data keys [%s] do not match pipeline contract [%s].',
+                    implode(', ', $providedKeys),
+                    implode(', ', $expectedKeys),
+                ));
             }
         }
 
