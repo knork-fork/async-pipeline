@@ -174,6 +174,21 @@ final class PipelineValidatorTest extends UnitTestCase
     }
 
     /**
+     * Pipeline: start -> stage1 -> stage2 -> end, where stage1's "out" pin
+     * also has a second edge connecting directly to end.
+     * Validator must reject: an output pin can only have one connection.
+     */
+    public function testFailsWhenOutputPinHasMultipleConnections(): void
+    {
+        /** @var array<string, mixed> $pipeline */
+        $pipeline = Yaml::parseFile(self::FILES_DIR . '/pipelines/failing9.yaml');
+        $result = $this->validator->validate($pipeline, 'App\Tests\Files\Stages\Passing');
+
+        self::assertFalse($result->isValid());
+        self::assertNotEmpty($result->getErrors());
+    }
+
+    /**
      * Pipeline contract expects key_1, key_2, key_3.
      * Providing exactly those keys must pass.
      */

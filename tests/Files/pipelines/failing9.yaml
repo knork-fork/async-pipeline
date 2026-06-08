@@ -1,0 +1,44 @@
+graph:
+  nodes:
+    - id: start
+      type: start
+      config:
+        keys:
+          - key_1
+    - id: stage1
+      type: stage
+      stage: Stage1
+      config: {}
+    - id: stage2
+      type: stage
+      stage: Stage2
+      config: {}
+    - id: end
+      type: end
+      config: {}
+  edges:
+    - from:
+        node: start
+        port: out
+      to:
+        node: stage1
+        port: in
+    - from:
+        node: stage1
+        port: out
+      to:
+        node: stage2
+        port: in
+    - from:
+        node: stage1
+        port: out
+      to:
+        node: end
+        port: in
+    - from:
+        node: stage2
+        port: out
+      to:
+        node: end
+        port: in
+  comments: []

@@ -70,6 +70,20 @@ final class PipelineValidator implements PipelineValidatorInterface
             }
         }
 
+        /** @var array<string, true> $seenOutputPins */
+        $seenOutputPins = [];
+        foreach ($edges as $edge) {
+            $pin = $edge['from']['node'] . ':' . $edge['from']['port'];
+            if (isset($seenOutputPins[$pin])) {
+                return ValidationResult::fail(\sprintf(
+                    'Output pin "%s" on node "%s" has more than one connection.',
+                    $edge['from']['port'],
+                    $edge['from']['node'],
+                ));
+            }
+            $seenOutputPins[$pin] = true;
+        }
+
         /** @var array<string, list<string>> $adj */
         $adj = array_fill_keys(array_keys($nodes), []);
         /** @var array<string, list<string>> $reverseAdj */
