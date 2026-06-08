@@ -79,6 +79,8 @@ services:
             - './src:/php-src'
         ports:
             - '20046:4001'
+        environment:
+            - PHP_API_URL=http://webserver
         command: sh -c "npm install && node server.js"
 
 volumes:

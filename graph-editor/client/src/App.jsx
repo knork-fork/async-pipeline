@@ -5,7 +5,7 @@ import FileTree from './components/FileTree'
 import GraphEditor from './components/GraphEditor'
 import PropertiesPanel from './components/PropertiesPanel'
 import { generateSpec } from './utils/generateSpec'
-import { yamlToGraph } from './utils/yamlConvert'
+import { yamlToGraph, graphToYaml } from './utils/yamlConvert'
 import { useAutoSave } from './hooks/useAutoSave'
 import './App.css'
 
@@ -79,6 +79,7 @@ function App() {
   const [selectedNodeIds, setSelectedNodeIds] = useState(new Set())
   const [rightSidebarWidth, setRightSidebarWidth] = useState(getRightInitialWidth)
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false)
+  const [validationResult, setValidationResult] = useState(null)
   const dropdownRef = useRef(null)
   const dragging = useRef(false)
   const draggingRight = useRef(false)
@@ -303,6 +304,24 @@ function App() {
     setShowNewModal(false)
   }
 
+  const handleValidate = useCallback(async () => {
+    if (!selectedPipeline) return
+    const config = graphToYaml(graphNodes, graphEdges, camera)
+    try {
+      const res = await axios.post(`/api/pipelines/${encodeURIComponent(selectedPipeline)}/validate`, { config })
+      setValidationResult(res.data)
+    } catch {
+      setValidationResult({ valid: false, errors: ['Validation request failed'] })
+    }
+  }, [selectedPipeline, graphNodes, graphEdges, camera])
+
+  useEffect(() => {
+    if (!validationResult) return
+    const handler = (e) => { if (e.key === 'Escape') setValidationResult(null) }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [validationResult])
+
   const handleUpdateNode = useCallback((nodeId, fields) => {
     setGraphNodes((prev) => prev.map((n) => n.id === nodeId ? { ...n, ...fields } : n))
   }, [setGraphNodes])
@@ -360,6 +379,7 @@ function App() {
               }
             }}
           >Copy to clipboard</button>
+          <button className="btn-validate" onClick={handleValidate} disabled={!selectedPipeline}>Validate</button>
           <button className="btn-run">Run</button>
         </div>
       </header>
@@ -412,6 +432,28 @@ function App() {
         )}
       </div>
       <Toast message={toast.message} show={toast.show} />
+      {validationResult && (
+        <div className="modal-backdrop" onClick={() => setValidationResult(null)}>
+          <div className="modal validation-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setValidationResult(null)} aria-label="Close modal" />
+            <h2 className="modal-title">
+              {validationResult.valid ? 'Validation Passed' : 'Validation Failed'}
+            </h2>
+            <div className="modal-body validation-modal-body">
+              {validationResult.valid ? (
+                <p className="validation-success">Pipeline structure is valid.</p>
+              ) : (
+                <ul className="validation-errors">
+                  {(validationResult.errors || []).map((err, i) => <li key={i}>{err}</li>)}
+                </ul>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn-primary" onClick={() => setValidationResult(null)}>OK</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

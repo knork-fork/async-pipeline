@@ -128,6 +128,26 @@ app.get('/api/stage-classes', (req, res) => {
   res.json({ stages, conditions });
 });
 
+app.post('/api/pipelines/:name/validate', async (req, res) => {
+  const phpApiUrl = process.env.PHP_API_URL;
+  if (!phpApiUrl) return res.status(503).json({ error: 'PHP API not configured' });
+
+  const pipeline = req.body.config;
+  if (!pipeline) return res.status(400).json({ error: 'config required' });
+
+  try {
+    const phpRes = await fetch(`${phpApiUrl}/pipeline/validate-structure`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pipeline }),
+    });
+    const data = await phpRes.json();
+    res.json(data);
+  } catch {
+    res.status(503).json({ error: 'PHP API unavailable' });
+  }
+});
+
 const EXCLUDED = new Set([
   'node_modules', '.git', '.next', 'dist', 'build',
   '__pycache__', '.venv', '.env', '.cache', '.DS_Store',

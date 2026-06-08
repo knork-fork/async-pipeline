@@ -381,6 +381,54 @@
   font-size: 0.9rem;
 }
 
+.btn-validate {
+  color: var(--color-success);
+  background: transparent;
+  border: 1px solid var(--color-success);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.btn-validate:hover:not(:disabled) {
+  background: var(--color-success);
+  color: var(--text-primary);
+}
+
+.btn-validate:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.validation-modal-body {
+  padding-top: 4px;
+}
+
+.validation-success {
+  color: var(--color-success);
+  margin: 0;
+}
+
+.validation-errors {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.validation-errors li {
+  color: var(--color-danger);
+  background: rgba(218, 55, 60, 0.1);
+  border: 1px solid rgba(218, 55, 60, 0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
 @keyframes toastSlideIn {
   from { transform: translateX(400px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }

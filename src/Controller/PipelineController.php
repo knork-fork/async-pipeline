@@ -11,7 +11,9 @@ use App\Exception\InvalidPipelineTypeException;
 use App\Repository\PipelineRepository;
 use App\Service\PipelineCreateService;
 use App\Service\PipelinePreviewService;
+use App\Service\PipelineValidatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,6 +26,7 @@ final class PipelineController extends AbstractController
         private readonly PipelineCreateService $pipelineCreateService,
         private readonly PipelinePreviewService $previewService,
         private readonly PipelineRepository $pipelineRepository,
+        private readonly PipelineValidatorInterface $validator,
     ) {
         parent::__construct($serializer);
     }
@@ -38,6 +41,21 @@ final class PipelineController extends AbstractController
         } catch (InvalidPipelineDataException) {
             return new JsonResponse(['error' => 'Invalid pipeline data'], 400);
         }
+    }
+
+    #[Route('/pipeline/validate-structure', methods: ['POST'])]
+    public function validateStructure(Request $request): JsonResponse
+    {
+        /** @var array<string, mixed>|null $body */
+        $body = json_decode($request->getContent(), true);
+        $pipeline = \is_array($body['pipeline'] ?? null) ? $body['pipeline'] : [];
+
+        $result = $this->validator->validate($pipeline, 'App\Stage');
+
+        return new JsonResponse([
+            'valid' => $result->isValid(),
+            'errors' => $result->getErrors(),
+        ]);
     }
 
     #[Route('/pipeline/{id}/status', methods: ['GET'])]
