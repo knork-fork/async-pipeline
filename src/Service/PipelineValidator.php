@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Pipeline\ValidationResult;
 use App\Stage\AbstractStage;
 use App\Stage\StageContract;
+use App\Stage\WorkflowState;
 use RuntimeException;
 
 final class PipelineValidator implements PipelineValidatorInterface
@@ -285,7 +286,7 @@ final class PipelineValidator implements PipelineValidatorInterface
                 throw new RuntimeException(\sprintf('Stage class not found: "%s".', $class));
             }
 
-            $instance = new $class();
+            $instance = new $class(new WorkflowState());
 
             if (!$instance instanceof AbstractStage) {
                 throw new RuntimeException(\sprintf('Stage class "%s" must extend AbstractStage.', $class));
